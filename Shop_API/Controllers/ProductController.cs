@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Shop_API.Data;
 using Shop_API.Dto;
@@ -17,7 +18,7 @@ namespace Shop_API.Controllers
             _shopDbContext = shopDbContext;
         }
 
-        [HttpGet]
+        [HttpGet, Authorize]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public ActionResult<IEnumerable<ProductDto>> getAllProducts()
@@ -28,7 +29,7 @@ namespace Shop_API.Controllers
         [HttpGet("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public ActionResult<IEnumerable<ProductDto>> getProductById(int id)
+        public ActionResult<ProductDto> getProductById(int id)
         {
             var product = _shopDbContext.Products.FirstOrDefault(p => p.id == id);
             if(product == null)
@@ -43,12 +44,12 @@ namespace Shop_API.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public ActionResult<IEnumerable<ProductDto>> addProduct([FromBody] ProductDto product)
         {
-            Product toAdd = new Product(product.id,product.name, product.creationDate, product.creationDate, product.description, product.price );
+            Product productToAdd = new Product(product.id,product.name, product.creationDate, product.creationDate, product.description, product.price );
             
-            _shopDbContext.Products.Add(toAdd);
+            _shopDbContext.Products.Add(productToAdd);
             _shopDbContext.SaveChanges();
 
-            return CreatedAtAction(nameof(getProductById), new { id = product.id }, toAdd);
+            return CreatedAtAction(nameof(getProductById), new { id = productToAdd.id }, productToAdd);
         }
 
         [HttpDelete("{id}")]

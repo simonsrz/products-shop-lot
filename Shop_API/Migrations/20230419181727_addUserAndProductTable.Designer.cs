@@ -12,8 +12,8 @@ using Shop_API.Data;
 namespace Shop_API.Migrations
 {
     [DbContext(typeof(ShopContext))]
-    [Migration("20230415211015_AddProductsTable")]
-    partial class AddProductsTable
+    [Migration("20230419181727_addUserAndProductTable")]
+    partial class addUserAndProductTable
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -53,6 +53,27 @@ namespace Shop_API.Migrations
                     b.HasKey("id");
 
                     b.ToTable("Products");
+                });
+
+            modelBuilder.Entity("Shop_API.Models.User", b =>
+                {
+                    b.Property<int>("id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("id"));
+
+                    b.Property<string>("password")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("username")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("id");
+
+                    b.ToTable("Users");
                 });
 #pragma warning restore 612, 618
         }
