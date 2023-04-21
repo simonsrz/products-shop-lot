@@ -4,6 +4,8 @@ using Microsoft.EntityFrameworkCore;
 using Shop_API.Data;
 using Shop_API.Dto;
 using Shop_API.Models;
+using Shop_API.Response;
+using Shop_API.Services;
 
 namespace Shop_API.Controllers
 {
@@ -11,27 +13,28 @@ namespace Shop_API.Controllers
     [ApiController]
     public class ProductController : ControllerBase
     {
-        private readonly ShopContext _shopDbContext;
 
-        public ProductController(ShopContext shopDbContext)
+        private readonly ProductService _productService;
+        public ProductController(ProductService productService)
         {
-            _shopDbContext = shopDbContext;
+            _productService = productService;
+
         }
 
-        [HttpGet, Authorize]
+        [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public ActionResult<IEnumerable<ProductDto>> getAllProducts()
+        public ActionResult<IEnumerable<ProductResponse>> getAllProducts()
         {
-            return Ok(_shopDbContext.Products.ToList());
+            return Ok(_productService.GetProductList());
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("{id}"), Authorize]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public ActionResult<ProductDto> getProductById(int id)
+        public ActionResult<ProductResponse> getProductById(int id)
         {
-            var product = _shopDbContext.Products.FirstOrDefault(p => p.id == id);
+            var product = _productService.GetProductById(id);
             if(product == null)
             {
                 return NotFound();
@@ -39,53 +42,45 @@ namespace Shop_API.Controllers
             return Ok(product);
         }
 
-        [HttpPost]
+        [HttpPost, Authorize]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public ActionResult<IEnumerable<ProductDto>> addProduct([FromBody] ProductDto product)
+        public ActionResult<IEnumerable<ProductResponse>> addProduct([FromBody] ProductDto product)
         {
-            Product productToAdd = new Product(product.id,product.name, product.creationDate, product.creationDate, product.description, product.price );
-            
-            _shopDbContext.Products.Add(productToAdd);
-            _shopDbContext.SaveChanges();
+            Product productToAdd = _productService.AddProduct(product);
 
             return CreatedAtAction(nameof(getProductById), new { id = productToAdd.id }, productToAdd);
         }
 
-        [HttpDelete("{id}")]
+        [HttpDelete("{id}"), Authorize]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public ActionResult<IEnumerable<ProductDto>> deleteProduct(int id)
+        public ActionResult<IEnumerable<ProductResponse>> deleteProduct(int id)
         {
-            var product = _shopDbContext.Products.FirstOrDefault(p => p.id == id);
+            var product = _productService.GetProductById(id);
             if (product == null)
             {
                 return NotFound();
             }
 
-            _shopDbContext.Products.Remove(product);
-            _shopDbContext.SaveChanges();
+            _productService.DeleteProduct(id);
 
             return Ok(product);
         }
 
-        [HttpPut("{id}")]
+        [HttpPut("{id}"), Authorize]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public ActionResult<IEnumerable<ProductDto>> updateProduct(int id, [FromBody] ProductDto product)
+        public ActionResult<IEnumerable<ProductResponse>> updateProduct(int id, [FromBody] ProductDto product)
         {
-            var productToUpdate = _shopDbContext.Products.FirstOrDefault(p => p.id == id);
+            var productToUpdate = _productService.GetProductById(id);
 
             if (productToUpdate == null)
             {
                 return NotFound();
             }
-            productToUpdate.price = product.price;
-            productToUpdate.description = product.description;
-            productToUpdate.editDate = DateTime.Now;
-            productToUpdate.name = product.name;
-            _shopDbContext.SaveChanges();
+            _productService.UpdateProduct(id, product);
 
             return Ok(productToUpdate);
         }

@@ -15,9 +15,8 @@ namespace Shop_API.Models
         public string description { get; set; }
         public int price { get; set; }
 
-        public Product(int id, string name, DateTime creationDate, DateTime editDate, string description, int price)
+        public Product(string name, DateTime creationDate, DateTime editDate, string description, int price)
         {
-            this.id = id;
             this.name = name;
             this.creationDate = creationDate;
             this.editDate = editDate;

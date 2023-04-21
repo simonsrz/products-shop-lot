@@ -50,6 +50,7 @@ builder.Services.AddSwaggerGen(option =>
 
 
 builder.Services.AddScoped<TokenService, TokenService>();
+builder.Services.AddScoped<ProductService, ProductService>();
 
 builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
