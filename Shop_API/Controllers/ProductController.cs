@@ -29,7 +29,7 @@ namespace Shop_API.Controllers
             return Ok(_productService.GetProductList());
         }
 
-        [HttpGet("{id}"), Authorize]
+        [HttpGet("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public ActionResult<ProductResponse> getProductById(int id)
